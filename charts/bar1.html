@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html" />
+<meta name="author" content="Priscilla Sibei Li" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Bar</title>
+<script type="text/javascript" src="static/js/jquery.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<link rel="stylesheet" type="text/css" href="static/css/bar.css">
+</head>
+<body>
+    <div class = "back" align = "center">
+        <p class = "titleOfGraph">The Most Popular 20 America-Born-Asian Baby Girl Name in 2011</p>
+        <svg width="1500" height="500" id="svgBar" ></svg>	
+    </div>
+    <script>
+        var svgBar = d3.select("#svgBar"),
+            width = svgBar.attr("width"),
+            height = svgBar.attr("height");
+            //alert(width);
+
+        var marginBar = {top: 50, right: 50, bottom: 50, left: 50};
+
+        //var g = svgBar.append("g")
+          //  .attr("transform", "translate(" + marginBar.left + "," + marginBar.bottom + ")");
+        
+        d3.csv("static/csv/name.csv", /*formatData,*/ function(error, data) { //get data
+            var Name = [],
+                Count = [];
+            data.forEach(function(d){
+                Name.push(d.Name);
+                Count.push(parseInt(d.Count));
+            })
+            //alert(Name);
+            if (error) throw error;
+            
+            //x scale
+            var xScale = d3.scale.ordinal()
+                .domain(Name)
+                .rangeRoundBands([0, width - marginBar.left - marginBar.right]);
+            var ranges = xScale.range();  
+
+            //y scale
+            var yScale = d3.scale.linear()
+                .domain([0,130])
+                .range([height - marginBar.top - marginBar.bottom,10]);
+
+            //define x axis
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom");
+                    
+            //define y axis
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+            //seperate each rect
+            var rectPadding = 2;
+
+            //add rects
+            var rects = svgBar.selectAll(".MyRect")
+                .data(Count)
+                .enter()
+                .append("rect")
+                .attr("class","MyRect")                
+                .attr("transform","translate(" + marginBar.left + "," + marginBar.top + ")")
+                .attr("x", function(d,i){return ranges[i];} )
+                .attr("y",function(d){return yScale(d);})
+                .attr("width", xScale.rangeBand() - rectPadding )
+                .attr("height", function(d){
+                    return height - marginBar.top - marginBar.bottom - yScale(d);
+                });
+            svgBar.append("g")
+                .data(Name)
+                .attr("class", "axis axis--x")
+                .attr("transform","translate(" + marginBar.left + "," + (height - marginBar.bottom) + ")")
+                .call(xAxis)
+                .append("g")
+                .attr("class","title")
+                .attr("transform","translate(1400,0)")
+                .attr("opacity","1")
+                .append("text")
+                .text("Name")
+                .attr("class","titleTextIndex")
+                .attr("style","font-size: 16px;")
+                .attr("fill","#000");
+                    
+            svgBar.append("g")
+                .attr("class","axis")
+                .attr("transform","translate(" + marginBar.left + "," + marginBar.top + ")")
+                .call(yAxis)
+                .append("g")
+                .attr("class","title")
+                .attr("transform","translate(-40,-10)")
+                .attr("opacity","1")
+                .append("text")
+                .text("Count")
+                .attr("class","titleTextIndex")
+                .attr("style","font-size: 16px;")
+                .attr("fill","#000");
+        });      
+    </script>
+</body>
+</html>

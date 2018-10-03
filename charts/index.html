@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html" />
+    <meta name="author" content="Priscilla Sibei Li" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Index</title>
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+	<script src="static/js/d3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/index.css">
+</head>
+	
+<body>
+    <div class = "back" align = "center" style = "margin-top: 50px;">
+        <p class = "titleOfGraph" style = "font-size: 20px;">Average Household Income During Years</p>
+        <svg width="1000" height="500" id="svgIndex" ></svg>	
+    </div>
+
+    <script>
+        //init the svg
+        var svgIndex = d3.select("#svgIndex"),
+            marginIndex = {top: 50, right: 50, bottom: 50, left: 50},
+            widthIndex = +svgIndex.attr("width") - marginIndex.left - marginIndex.right,
+            heightIndex = +svgIndex.attr("height") - marginIndex.top - marginIndex.bottom;
+
+        var x = d3.scaleLinear().range([0, widthIndex]),
+            y = d3.scaleLinear().range([heightIndex, 0]);
+
+        var xAxis = d3.axisBottom(x),   //x axis
+            yAxis = d3.axisLeft(y);     //y axis
+
+        //define an area
+        var area = d3.area()
+            .curve(d3.curveMonotoneX)
+            .x(function(d) { return x(d.Year); })
+            .y0(heightIndex)
+            .y1(function(d) { return y(d.Income); });
+
+        svgIndex.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", widthIndex)
+            .attr("height", heightIndex);
+
+        var g = svgIndex.append("g")
+            .attr("transform", "translate(" + marginIndex.left + "," + marginIndex.top + ")");
+
+        d3.csv("static/csv/income.csv", formatData, function(error, data) { //get data
+            if (error) throw error;
+            x.domain([2008,2017]);  //x axis is from 2008 to 2017
+            y.domain([d3.min(data, function(d) { return d.Income; }), d3.max(data, function(d) { return d.Income; })]); //choose the min and max of income data as the range of y axis
+
+            g.append("path")    //bind data to g
+                .datum(data)
+                .attr("class", "area")
+                .attr("d", area);
+
+            g.append("g")   //bind g to axis
+                .attr("class", "axis axis--x")
+                .attr("transform", "translate(0," + heightIndex + ")")
+                .call(xAxis)
+                .append("g")
+                .attr("class","title")
+                .attr("transform","translate(920,0)")
+                .attr("opacity","1")
+                .append("text")
+                .text("Year")
+                .attr("class","titleTextIndex")
+                .attr("fill","#000");
+
+            g.append("g")   //bind g to axis
+                .attr("class", "axis axis--y")
+                .call(yAxis)
+                .append("g")
+                .attr("class","title")
+                .attr("transform","translate(160,-10)")
+                .attr("opacity","1")
+                .append("text")
+                .text("Median Household Income")
+                .attr("class","titleTextIndex")
+                .attr("fill","#000");
+           
+        });
+        
+        //var aaa = 0;
+        function formatData(d) {    // turn the data type into integer
+            d.Year = +d.Year;
+            d.Income = +d.Income;
+            return d;
+        }
+    </script>
+
+
+</body>
+</html>

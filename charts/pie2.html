@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html" />
+<meta name="author" content="Priscilla Sibei Li" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Pie</title>
+<script type="text/javascript" src="static/js/jquery.js"></script>
+<script src="static/js/d3.min.js"></script>
+</head>
+<body>
+	<div id="pie" style="width: 50%;height: 50vw; margin-top: 50px; margin-left: 25%;"></div>
+<script src="static/js/d3pie.js"></script>
+<script>	
+	d3.csv("static/csv/traffic.csv", function(error, data) {//get data from pine.csv
+		var dataset = [];
+		data.forEach(function(d){
+			var temp = new Object();
+			temp.label = d.Street;
+			temp.value = +d.Passing;
+			temp.color = d.Color;
+			dataset.push(temp);
+		});
+		//alert(typeof(a[1].color));
+	var pie = new d3pie("pie", {//new pie object
+		"header": {//hearder attr
+			"title": {
+				"text": "Traffic Situation(Total Passing) of Each Street",//display text
+				"fontSize": 24,
+				"font": "Microsoft YaHei"
+			},
+			"titleSubtitlePadding": 9
+		},
+		"size": {//pine size
+			"canvasHeight": 1000,
+			"canvasWidth": 1000,
+			"pieOuterRadius": "90%"
+		},
+		"data": {//bind data
+			"sortOrder": "value-desc",
+			"content": dataset
+		},
+		"labels": {			
+			"inner": {
+				"hideWhenLessThanPercentage": 3
+			}
+		},
+	});
+});
+</script>
+</body>
+</html>
